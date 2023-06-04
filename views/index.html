@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <script src="/io/socket.io.min.js"></script>
+</head>
+
+<body>
+  <form action="" id="form">
+    <select name="room" id="rooms">
+      <option value="room1">1</option>
+      <option value="room2">2</option>
+    </select>
+    <input type="text" id="msgtoname" />
+    <button type="submit" id="btn">送信</button>
+  </form>
+  <div id="chatLogs"></div>
+  <script>
+    let isEnter = false;
+    let name = "";
+
+    let socketio = io();
+
+    socketio.on("tw_res", function (val) {
+      let chatLogs = document.getElementById("chatLogs");
+      let div = document.createElement("div");
+      div.textContent = val;
+      chatLogs.appendChild(div);
+    });
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      let form = document.querySelector("#form");
+      let selectRoom = document.querySelector("#rooms").value;
+      let msgtoname = document.querySelector("#msgtoname").value;
+      if (isEnter) {
+        tw = "[" + name + "]" + msgtoname;
+        socketio.emit("tw", tw);
+      } else {
+        name = msgtoname;
+        socketio.emit("join", selectRoom);
+        disabledOption();
+      }
+    });
+
+    const disabledOption = () => {
+      document.getElementById("rooms").disabled = true;
+      document.getElementById("btn").textContent = "メッセージを送信";
+      isEnter = true;
+    };
+  </script>
+</body>
+
+</html>
